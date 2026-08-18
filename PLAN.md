@@ -28,7 +28,7 @@ graph TD
     KV[Key Vault]
     Functions -->|CRUD & Merge| Cosmos
     Cosmos -->|Query Results| Functions
-    Functions -->|VAPID Keys| KV
+    Functions -->|Secrets| KV
     Functions -->|Push Delivery| NotifHub
   end
 
@@ -51,15 +51,18 @@ graph TD
 ## ☁️ Azure Free Tier Compatibility
 | Resource | Free Tier Limit | Project Usage | Safety Margin |
 |----------|----------------|---------------|---------------|
-| **Azure Functions** (Consumption F0) | 1M invocations/mo, 200k GB-sec/mo | Sync endpoints, push scheduler, validation | ~95% unused (sync is batched & sporadic) |
+| **Azure Functions** (Consumption F0) | 1M invocations/mo, 400K GB-sec/mo | Sync endpoints, push scheduler, validation | ~95% unused (sync is batched & sporadic) |
 | **Cosmos DB Free SQL API** | 25 GB storage, 1000 RU/s provisioned | JSON task documents (single-user MVP) | ~0.1% storage, minimal RUs |
 | **NSG (Network Security Group)** | Free (included with VNet) | Restrict functions & DB to home IP range | Exact match |
 | **Static Web Apps** (Free F0) | 100 GB bandwidth/mo, 2 custom domains, free SSL | Host PWA frontend with global CDN | Well within limits for single-user |
 | **Notification Hubs** (Free) | 1M pushes/mo, 500 active devices | Abstract push delivery across APNs + FCM | ~99% unused at single-user scale |
-| **Key Vault** (Free tier) | 10K transactions/mo | Store VAPID keys, Cosmos connection strings | Minimal transaction count |
+| **Key Vault** | Pay-per-use: $0.03/10K ops | VAPID keys, Cosmos connection strings, secrets | ~$0.01/year at this volume |
 | **Application Insights** (Free tier) | 5 GB ingestion/mo | Logging & diagnostics for Functions + sync | Tiny volume for single-user |
+| **Cosmos DB Backup** (Continuous 7-day) | Free, included | Point-in-time self-service restore | No storage account needed |
 
-**Total Cost**: `$0/mo` (assuming standard personal sync frequency & staying within limits).
+**Total Cost**: `~$0/mo` — all services above are **always free** (not 12-month trial) except Key Vault (pay-per-use, ~$0.01/year) and the Storage Account auto-created by Azure Functions (fractions of a cent/mo).
+
+> **Portfolio note**: Key Vault is included deliberately to demonstrate proper secrets management (VAPID keys, connection strings) rather than storing them in App Settings. This is an industry best practice and a meaningful signal on a portfolio project.
 
 ---
 
